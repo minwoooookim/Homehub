@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Current Time</title>
+    <title>Current Time & Weather</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +14,7 @@
             height: 100vh;
             margin: 0;
             gap: 1rem;
-            background-color: #2c2c2c;
+            background-color: #000000;
             color: #ffffff;
         }
         #time-container {
@@ -22,7 +22,7 @@
             gap: 1rem;
         }
         #time {
-            font-size: 23rem
+            font-size: 30rem;
         }
         #right-side{
             display: flex;
@@ -32,8 +32,8 @@
             margin-left: 1rem;
         }
         .seconds-ampm {
-            font-size: 5rem;
-            margin: 2rem 0rem;
+            font-size: 7rem;
+            margin: 3rem 1rem;
         }
         #date-day{
             display: flex;
@@ -41,9 +41,13 @@
             align-content: center;
             flex-wrap: wrap;
             justify-content: center;
-            font-size: 6rem;
+            font-size: 8rem;
             margin: 0rem;
             gap: 1rem;
+        }
+        #weather {
+            font-size: 5rem;
+            margin-top: 4rem;
         }
         #fullscreen-button {
             position: absolute;
@@ -51,7 +55,7 @@
             right: 20px;
             font-size: 1.5rem;
             padding: 22px 28px;
-            background-color: #242424;
+            background-color: #0f0f0f;
             color: #2c2c2c;
             border: none;
             border-radius: 5px;
@@ -71,6 +75,7 @@
         <div id="date"></div>
         <div id="day"></div>
     </div>
+    <div id="weather"></div>
     <button id="fullscreen-button"></button>
 
     <script>
@@ -120,11 +125,30 @@
             }
         }
 
+        function updateWeather() {
+            try {
+                // 무료로 날씨 정보를 가져오는 방법으로 웹 스크래핑 활용
+                fetch('https://wttr.in/?format=%l:+%C+%t')
+                    .then(response => response.text())
+                    .then(weather => {
+                        document.getElementById('weather').textContent = weather;
+                    })
+                    .catch(error => {
+                        console.error('Failed to fetch weather data', error);
+                    });
+            } catch (error) {
+                console.error('Failed to fetch weather data', error);
+            }
+        }
+
         document.getElementById('fullscreen-button').addEventListener('click', toggleFullscreen);
         document.getElementById('fullscreen-button').addEventListener('touchstart', toggleFullscreen);
 
-        setInterval(updateTime, 1);
+        setInterval(updateTime, 1000); // 매초 시간 업데이트
         updateTime();  // 페이지 로드 시 즉시 실행
+
+        setInterval(updateWeather, 600000); // 10분마다 날씨 업데이트
+        updateWeather(); // 페이지 로드 시 즉시 실행
     </script>
 </body>
 </html>
