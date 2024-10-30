@@ -89,8 +89,8 @@
             const formattedHours = String(hours % 12 || 12).padStart(2);
 
             const date = String(now.getDate()).padStart(2, '0');
-            const month = String(now.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-            const year = String(now.getFullYear()).slice(-2); // 연도 끝 두 자릿수
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하니까 +1
+            const year = String(now.getFullYear()).slice(-2); // 연도 끝 두 자리
 
             const formattedDate = `${year}.${month}.${date}`;
 
@@ -127,7 +127,7 @@
 
         function updateWeather() {
             try {
-                // 무료로 날씨 정보를 가져오는 방법으로 웹 스크래핑 활용
+                // 무료로 날씨 정보를 가져오는 방법으로 웹 스크래피를 활용
                 fetch('https://wttr.in/?format=%l:+%C+%t')
                     .then(response => response.text())
                     .then(weather => {
@@ -141,14 +141,26 @@
             }
         }
 
+        function scheduleNextWeatherUpdate() {
+            const now = new Date();
+            const nextHour = new Date(now);
+            nextHour.setHours(now.getHours() + 1, 0, 0, 0); // 다음 정각 시간 설정 (분, 초, 밀리초 설정)
+            const timeToNextHour = nextHour - now; // 다음 정각까지 남은 시간 (밀리초)
+
+            setTimeout(() => {
+                updateWeather();
+                setInterval(updateWeather, 3600000); // 이후 매 시간 정각만큼 업데이트 (3600000ms = 1시간)
+            }, timeToNextHour);
+        }
+
         document.getElementById('fullscreen-button').addEventListener('click', toggleFullscreen);
         document.getElementById('fullscreen-button').addEventListener('touchstart', toggleFullscreen);
 
         setInterval(updateTime, 1000); // 매초 시간 업데이트
         updateTime();  // 페이지 로드 시 즉시 실행
 
-        setInterval(updateWeather, 600000); // 10분마다 날씨 업데이트
         updateWeather(); // 페이지 로드 시 즉시 실행
+        scheduleNextWeatherUpdate(); // 다음 정각에 맞추어 스케줄링
     </script>
 </body>
 </html>
