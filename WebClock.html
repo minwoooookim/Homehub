@@ -131,7 +131,7 @@
                 fetch('https://wttr.in/?format=%l:+%C+%t')
                     .then(response => response.text())
                     .then(weather => {
-                        document.getElementById('weather').textContent = weather;
+                        document.getElementById('weather').textContent = weather.split(':').slice(1).join(':').trim();
                     })
                     .catch(error => {
                         console.error('Failed to fetch weather data', error);
