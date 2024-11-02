@@ -127,10 +127,11 @@
 
         function updateWeather() {
             try {
-                // 무료로 날씨 정보를 가져오는 방법으로 웹 스크래피를 활용
+                // 무료로 날씨 정보를 가져오는 방법으로 웹 스크래퍼 활용
                 fetch('https://wttr.in/?format=%l:+%C+%t')
                     .then(response => response.text())
                     .then(weather => {
+                        // document.getElementById('weather').textContent = weather;
                         document.getElementById('weather').textContent = weather.split(':').slice(1).join(':').trim();
                     })
                     .catch(error => {
@@ -149,7 +150,7 @@
 
             setTimeout(() => {
                 updateWeather();
-                setInterval(updateWeather, 3600000); // 이후 매 시간 정각만큼 업데이트 (3600000ms = 1시간)
+                setInterval(updateWeather, 1800000); // 이후 매 30분마다 업데이트 (1800000ms = 30분)
             }, timeToNextHour);
         }
 
