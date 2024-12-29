@@ -132,9 +132,8 @@
             fetch('http://ip-api.com/json')
                 .then(response => response.json())
                 .then(data => {
-                    const { lat, lon, city, country } = data;
+                    const { lat, lon } = data;
                     console.log('IP-based Location:', data);
-                    document.getElementById('weather').textContent = `City: ${city}, Country: ${country}, Lat: ${lat}, Lon: ${lon}`;
                     fetchWeather(lat, lon);
                 })
                 .catch(error => {
@@ -149,7 +148,6 @@
                 .then(data => {
                     const temperature = data.main.temp;
                     const weatherDescription = data.weather[0].description;
-                    const location = data.name;
 
                     document.getElementById('weather').textContent = `${temperature.toFixed(1)}°C, ${weatherDescription}`;
                 })
@@ -166,6 +164,7 @@
         updateTime();  // 페이지 로드 시 즉시 실행
 
         fetchIpLocation(); // IP 기반 위치 정보 가져오기
+        setInterval(fetchIpLocation, 1800000); // 30분마다 날씨 업데이트
     </script>
 </body>
 </html>
