@@ -78,8 +78,9 @@
     <div id="weather"></div>
     <button id="fullscreen-button"></button>
 
-    <script type="module">
-        import { API_KEY } from './apikey.js';
+    <script src="./apikey.js"></script>
+    <script>
+        const API_KEY = window.API_KEY;
 
         function updateTime() {
             const now = new Date();
@@ -127,27 +128,35 @@
             }
         }
 
-        function updateWeather() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const { latitude, longitude } = position.coords;
-                    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const temperature = data.main.temp;
-                            const weatherDescription = data.weather[0].description;
-                            const location = data.name;
-                            document.getElementById('weather').textContent = `${temperature.toFixed(1)}°C, ${weatherDescription}`;
-                        })
-                        .catch(error => {
-                            console.error('Failed to fetch weather data', error);
-                        });
-                }, error => {
-                    console.error('Geolocation error', error);
+        function fetchIpLocation() {
+            fetch('http://ip-api.com/json')
+                .then(response => response.json())
+                .then(data => {
+                    const { lat, lon, city, country } = data;
+                    console.log('IP-based Location:', data);
+                    document.getElementById('weather').textContent = `City: ${city}, Country: ${country}, Lat: ${lat}, Lon: ${lon}`;
+                    fetchWeather(lat, lon);
+                })
+                .catch(error => {
+                    console.error('Failed to fetch IP location:', error);
+                    document.getElementById('weather').textContent = 'Failed to fetch location.';
                 });
-            } else {
-                document.getElementById('weather').textContent = 'Geolocation is not supported by this browser.';
-            }
+        }
+
+        function fetchWeather(lat, lon) {
+            fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    const temperature = data.main.temp;
+                    const weatherDescription = data.weather[0].description;
+                    const location = data.name;
+
+                    document.getElementById('weather').textContent = `${temperature.toFixed(1)}°C, ${weatherDescription}`;
+                })
+                .catch(error => {
+                    console.error('Failed to fetch weather data', error);
+                    document.getElementById('weather').textContent = 'Failed to fetch weather data.';
+                });
         }
 
         document.getElementById('fullscreen-button').addEventListener('click', toggleFullscreen);
@@ -156,7 +165,7 @@
         setInterval(updateTime, 1000); // 매초 시간 업데이트
         updateTime();  // 페이지 로드 시 즉시 실행
 
-        updateWeather(); // 페이지 로드 시 즉시 실행
+        fetchIpLocation(); // IP 기반 위치 정보 가져오기
     </script>
 </body>
 </html>
