@@ -157,6 +157,18 @@
                 });
         }
 
+        function scheduleNextWeatherUpdate() {
+            const now = new Date();
+            const nextHour = new Date(now);
+            nextHour.setHours(now.getHours() + 1, 0, 0, 0); // 다음 정각 시간 설정 (분, 초, 밀리초 설정)
+            const timeToNextHour = nextHour - now; // 다음 정각까지 남은 시간 (밀리초)
+
+            setTimeout(() => {
+                updateWeather();
+                setInterval(fetchIpLocation, 1800000); // 이후 매 30분마다 업데이트 (1800000ms = 30분)
+            }, timeToNextHour);
+        }
+
         document.getElementById('fullscreen-button').addEventListener('click', toggleFullscreen);
         document.getElementById('fullscreen-button').addEventListener('touchstart', toggleFullscreen);
 
@@ -164,7 +176,7 @@
         updateTime();  // 페이지 로드 시 즉시 실행
 
         fetchIpLocation(); // IP 기반 위치 정보 가져오기
-        setInterval(fetchIpLocation, 1800000); // 30분마다 날씨 업데이트
+        scheduleNextWeatherUpdate(); // 다음 정각에 맞추어 스케줄링
     </script>
 </body>
 </html>
