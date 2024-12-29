@@ -78,7 +78,9 @@
     <div id="weather"></div>
     <button id="fullscreen-button"></button>
 
-    <script>
+    <script type="module">
+        import { API_KEY } from './apikey.js';
+
         function updateTime() {
             const now = new Date();
             const hours = now.getHours();
@@ -126,32 +128,26 @@
         }
 
         function updateWeather() {
-            try {
-                // 무료로 날씨 정보를 가져오는 방법으로 웹 스크래퍼 활용
-                fetch('https://wttr.in/?format=%l:+%C+%t')
-                    .then(response => response.text())
-                    .then(weather => {
-                        // document.getElementById('weather').textContent = weather;
-                        document.getElementById('weather').textContent = weather.split(':').slice(1).join(':').trim();
-                    })
-                    .catch(error => {
-                        console.error('Failed to fetch weather data', error);
-                    });
-            } catch (error) {
-                console.error('Failed to fetch weather data', error);
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const { latitude, longitude } = position.coords;
+                    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const temperature = data.main.temp;
+                            const weatherDescription = data.weather[0].description;
+                            const location = data.name;
+                            document.getElementById('weather').textContent = `${temperature.toFixed(1)}°C, ${weatherDescription}`;
+                        })
+                        .catch(error => {
+                            console.error('Failed to fetch weather data', error);
+                        });
+                }, error => {
+                    console.error('Geolocation error', error);
+                });
+            } else {
+                document.getElementById('weather').textContent = 'Geolocation is not supported by this browser.';
             }
-        }
-
-        function scheduleNextWeatherUpdate() {
-            const now = new Date();
-            const nextHour = new Date(now);
-            nextHour.setHours(now.getHours() + 1, 0, 0, 0); // 다음 정각 시간 설정 (분, 초, 밀리초 설정)
-            const timeToNextHour = nextHour - now; // 다음 정각까지 남은 시간 (밀리초)
-
-            setTimeout(() => {
-                updateWeather();
-                setInterval(updateWeather, 1800000); // 이후 매 30분마다 업데이트 (1800000ms = 30분)
-            }, timeToNextHour);
         }
 
         document.getElementById('fullscreen-button').addEventListener('click', toggleFullscreen);
@@ -161,7 +157,6 @@
         updateTime();  // 페이지 로드 시 즉시 실행
 
         updateWeather(); // 페이지 로드 시 즉시 실행
-        scheduleNextWeatherUpdate(); // 다음 정각에 맞추어 스케줄링
     </script>
 </body>
 </html>
